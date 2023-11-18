@@ -5,8 +5,8 @@ proc ws_sokcet_send_msg, socket, soket_info, msg, msg_len
 endp
 
 proc ws_socket_get_msg, socket, buf, buf_len 
-  invoke recvfrom, [socket], [buf], [buf_len], 0, server_addr, server_addr_len
-  
-  
+  invoke recvfrom, [socket], [buf], [buf_len], 0, ws_server_addr, ws_server_addr_len
+
+  ;return number of bytes received in eax
   ret
 endp

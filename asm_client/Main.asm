@@ -18,38 +18,43 @@ Start:
   invoke GetStdHandle, -11
   mov [hStdOut], eax
   
-  ;Инициализация библиотеки
+  ;Initializing the library
   stdcall ws_soket_init
   
-  ;создание нового сокета
-  stdcall ws_new_socket, WS_UDP  ;WS_TCP
+  ;Creating a new socket
+  stdcall ws_new_socket, WS_UDP  ;WS_UDP/WS_TCP
   mov [socket_handle], eax
   
-  ;Создание структуры для нового подсоединения
+  ;Creating a structure for a new connection
   stdcall ws_new_connection_structure, server_IP, [server_port]
-  mov [soket_data], eax
+  mov [soket_data_addr], eax
   
-  ;Отправка соединения для полученного соединения
-  stdcall ws_sokcet_send_msg, [socket_handle], [soket_data], message, [message_len]  
-  ;Пример обработки ошибки
-  cmp eax, SOCKET_ERROR
-  jnz @F
-    stdcall ws_socket_error, msg_send_err
-    jmp Exit
-  @@:
-  
-  stdcall ws_socket_get_msg, [socket_handle], request_buf, [request_buf_len] 
-  ;Пример обработки ошибки
-  cmp eax, 0
-  jge @F
-    stdcall ws_socket_error, msg_get_err
-    jmp Exit
-  @@:
-  
-  ;вывод сообщения:
-  invoke WriteConsoleA, [hStdOut], request_buf, [request_buf_len], chrsWritten, 0
-  
-  invoke ReadConsoleA, [hStdIn], readBuf, 1, chrsRead, 0
+  chat_loop:
+    invoke WriteConsoleA, [hStdOut], write_msg_text, [write_msg_text_len], chrsWritten, 0
+    ;Reading a message
+    invoke ReadConsoleA, [hStdIn], request_buf, 255, chrsRead, 0
+    
+    ;Sending a message
+    stdcall ws_sokcet_send_msg, [socket_handle], [soket_data_addr], request_buf, [chrsRead]  
+    cmp eax, SOCKET_ERROR
+    jnz @F
+      stdcall ws_socket_error, msg_send_err
+      jmp Exit
+    @@:
+    
+    ;Receiving a message
+    stdcall ws_socket_get_msg, [socket_handle], response_buf, [response_buf_len]  
+    cmp eax, 0
+    jge @F
+      stdcall ws_socket_error, msg_get_err
+      jmp Exit
+    @@:
+    
+    ;Message output
+    mov word[response_buf + eax], $0D0A
+    add eax, 2
+    invoke WriteConsoleA, [hStdOut], response_buf, eax, chrsWritten, 0
+  jmp chat_loop
 
 Exit:
   stdcall ws_close_connection
@@ -59,32 +64,28 @@ section '.data' data readable writeable
   include 'socket_data.inc'
   
   ;server config
-  server_IP     db    '127.0.0.1', 0
-  server_port   dd    8080
+  server_IP           db    '127.0.0.1', 0
+  server_port         dd    8080
   
-  ;
-  socket_handle dd    ?
-  soket_data    dd    ?
+  socket_handle       dd    ?
+  soket_data_addr     dd    ?
   
-  message       db    'Hello, server!', 0
-  message_len   dd    $ - message
+  msg_send_err        db    'message send failed', 0
+  msg_get_err         db    'message get failed', 0
   
-  msg_send_err  db    'message sand failed', 0
-  msg_get_err   db    'message get failed', 0
-  
-  request_buf      db    1024 dup (?)
-  request_buf_len  dd    $ - request_buf
+  response_buf        db    1024 dup (?)
+  response_buf_len    dd    $ - response_buf
 
 
+  write_msg_text      db   'Enter message: ', 0
+  write_msg_text_len  dd   $ - write_msg_text 
+  request_buf         db   100  dup  (0)
+  
   conTitle      db 'Console', 0
   hStdIn        dd ?
   hStdOut       dd ?
   chrsRead      dd ?
   chrsWritten   dd ?
-  
-
-section '.bss' readable writeable
-  readBuf          db    ?
 
 section '.idata' import data readable
 
