@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-server/internal/app/services"
 	"net"
+	"strings"
 )
 
 type server struct {
@@ -23,7 +24,7 @@ func New(ip string, port int) (*server, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Serving on %s\n", address)
+	fmt.Printf("UDP: Serving on %s\n", address)
 
 	return &server{
 		conn,
@@ -31,22 +32,22 @@ func New(ip string, port int) (*server, error) {
 }
 
 func (s *server) Start() error {
+	from := "UDP: "
 	buffer := make([]byte, 1024)
 	for {
-		_, addr, err := s.conn.ReadFromUDP(buffer)
+		fmt.Println(from + "Waiting for a message...")
+		getBytesCount, addr, err := s.conn.ReadFromUDP(buffer)
 		if err != nil {
-			fmt.Printf("Read data error: %s\n", err.Error())
+			fmt.Printf(from+"Read data error: %s\n", err.Error())
 			continue
 		}
-		fmt.Printf("From: %s | message: %s\n", addr, string(buffer))
+		msg := strings.TrimRight(string(buffer[:getBytesCount]), "\n")
+		fmt.Printf(from+"From: %s | message: %s\n", addr, msg)
 
-		input := services.ReadConsole()
-		fmt.Printf("try to send [%s] ...\n", input)
-		sendBytesCount, err := s.conn.WriteToUDP(input, addr)
+		input := services.ReadConsole(from)
+		_, err = s.conn.WriteToUDP(input, addr)
 		if err != nil {
-			fmt.Printf("Send data error: %s\n", err.Error())
-		} else {
-			fmt.Printf("Data: [%s] sent successfully\n", input[:sendBytesCount])
+			fmt.Printf(from+"Data send error: %s\n", err.Error())
 		}
 	}
 }
