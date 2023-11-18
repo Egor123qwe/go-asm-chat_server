@@ -1,0 +1,16 @@
+; FASM Editor
+
+include "Main.asm"
+
+if 2 * 2 = 5
+[options]
+  countAsm=4
+  countInc=1
+[asm]
+  asm1="Main.asm"
+  asm2="socket_consts.asm"
+  asm3="socket_main.asm"
+  asm4="socket_client.asm"
+[inc]
+  inc1="socket_data.inc"
+end if
