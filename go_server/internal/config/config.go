@@ -6,8 +6,10 @@ import (
 )
 
 type Config struct {
-	UDPPort int
-	TCPPort int
+	UDPPort  int
+	TCPPort  int
+	IP       string
+	Protocol string
 }
 
 func New() *Config {
@@ -18,7 +20,9 @@ func New() *Config {
 	}
 
 	return &Config{
-		UDPPort: viper.GetInt("udp_server_port"),
-		TCPPort: viper.GetInt("tcp_server_port"),
+		UDPPort:  viper.GetInt("udp_server_port"),
+		TCPPort:  viper.GetInt("tcp_server_port"),
+		IP:       viper.GetString("ip"),
+		Protocol: viper.GetString("protocol"),
 	}
 }

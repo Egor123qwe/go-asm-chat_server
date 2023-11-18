@@ -6,9 +6,9 @@ import (
 	"os"
 )
 
-func ReadConsole() []byte {
+func ReadConsole(from string) []byte {
 	reader := bufio.NewScanner(os.Stdin)
-	fmt.Print("Enter message: ")
+	fmt.Print(from + "Enter message: ")
 	var input []byte
 	if reader.Scan() {
 		input = []byte(reader.Text())

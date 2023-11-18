@@ -2,9 +2,12 @@ package app
 
 import (
 	"context"
+	"errors"
+	"go-server/internal/app/tcp"
 	"go-server/internal/app/udp"
 	"go-server/internal/config"
 	"golang.org/x/sync/errgroup"
+	"strings"
 )
 
 type server struct {
@@ -21,16 +24,29 @@ func New() *server {
 	}
 }
 
-func (s *server) Start(ip string) error {
+func (s *server) Start() error {
 	gr, _ := errgroup.WithContext(s.ctx)
 
-	gr.Go(func() error {
-		udpServer, err := udp.New(ip, s.config.UDPPort)
-		if err != nil {
-			return err
-		}
-		return udpServer.Start()
-	})
+	if strings.ToLower(s.config.Protocol) == "udp" {
+		gr.Go(func() error {
+			udpServer, err := udp.New(s.config.IP, s.config.UDPPort)
+			if err != nil {
+				return err
+			}
+			return udpServer.Start()
+		})
+	} else if strings.ToLower(s.config.Protocol) == "tcp" {
+		gr.Go(func() error {
+			tcpServer, err := tcp.New(s.config.IP, s.config.TCPPort)
+			if err != nil {
+				return err
+			}
+			return tcpServer.Start()
+		})
+	} else {
+		return errors.New("invalid protocol. See your config file")
+	}
+
 	if err := gr.Wait(); err != nil {
 		return err
 	}

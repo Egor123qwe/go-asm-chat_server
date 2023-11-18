@@ -64,7 +64,7 @@ section '.data' data readable writeable
   include 'socket_data.inc'
   
   ;server config
-  server_IP           db    '127.0.0.1', 0
+  server_IP           db    '127.0.0.1', 0    ;10.211.55.4
   server_port         dd    8080
   
   socket_handle       dd    ?
