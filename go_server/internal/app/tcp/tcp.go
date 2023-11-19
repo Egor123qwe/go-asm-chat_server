@@ -14,7 +14,7 @@ type server struct {
 func New(ip string, port int) (*server, error) {
 	address := fmt.Sprintf("%s:%d", ip, port)
 
-	listener, err := net.Listen("tcp", ":1234")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return nil, err
 	}

@@ -1,3 +1,4 @@
+;example tcp client chat
 proc start_tcp_chat, socket_handle, hStdOut, hStdIn
   .chat_loop:
     invoke WriteConsoleA, [hStdOut], write_msg_text_tcp, [write_msg_text_len_tcp], chrsWritten_tcp, 0

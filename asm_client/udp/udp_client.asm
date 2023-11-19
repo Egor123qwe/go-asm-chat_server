@@ -1,3 +1,4 @@
+;example udp client chat
 proc start_udp_chat, socket_handle, soket_data_addr, hStdOut, hStdIn
 
   .chat_loop:
