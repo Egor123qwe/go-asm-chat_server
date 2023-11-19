@@ -2,14 +2,17 @@ format PE Console 4.0
 entry Start
 
 include 'win32a.inc'
-
-include 'socket_consts.asm'
-include 'socket_main.asm'
-include 'socket_client.asm'
+include 'socket\socket_main.asm'
+;usage examples
+include 'udp/udp_client.asm'
+include 'tcp/tcp_client.asm'
 
 section '.text' code readable executable
 
 Start:
+  mov [CLIENT_TYPE], WS_UDP ;WS_UDP/WS_TCP
+
+  ;console init
   invoke SetConsoleTitleA, conTitle
   test eax, eax
   jz Exit
@@ -22,70 +25,44 @@ Start:
   stdcall ws_soket_init
   
   ;Creating a new socket
-  stdcall ws_new_socket, WS_UDP  ;WS_UDP/WS_TCP
+  stdcall ws_new_socket, [CLIENT_TYPE]
   mov [socket_handle], eax
   
   ;Creating a structure for a new connection
   stdcall ws_new_connection_structure, server_IP, [server_port]
-  mov [soket_data_addr], eax
+  ;eax - *sockaddr
+
+  cmp [CLIENT_TYPE], WS_TCP
+  jnz @F
+    stdcall ws_tcp_connect, [socket_handle], eax
+    stdcall start_tcp_chat, [socket_handle], [hStdOut], [hStdIn]
+  @@:
   
-  chat_loop:
-    invoke WriteConsoleA, [hStdOut], write_msg_text, [write_msg_text_len], chrsWritten, 0
-    ;Reading a message
-    invoke ReadConsoleA, [hStdIn], request_buf, 255, chrsRead, 0
-    
-    ;Sending a message
-    stdcall ws_sokcet_send_msg, [socket_handle], [soket_data_addr], request_buf, [chrsRead]  
-    cmp eax, SOCKET_ERROR
-    jnz @F
-      stdcall ws_socket_error, msg_send_err
-      jmp Exit
-    @@:
-    
-    ;Receiving a message
-    stdcall ws_socket_get_msg, [socket_handle], response_buf, [response_buf_len]  
-    cmp eax, 0
-    jge @F
-      stdcall ws_socket_error, msg_get_err
-      jmp Exit
-    @@:
-    
-    ;Message output
-    mov word[response_buf + eax], $0D0A
-    add eax, 2
-    invoke WriteConsoleA, [hStdOut], response_buf, eax, chrsWritten, 0
-  jmp chat_loop
+  cmp [CLIENT_TYPE], WS_UDP
+  jnz @F
+    stdcall start_udp_chat, [socket_handle], eax, [hStdOut], [hStdIn]
+  @@:
 
 Exit:
   stdcall ws_close_connection
   invoke  ExitProcess, 0
 
 section '.data' data readable writeable
-  include 'socket_data.inc'
+  include 'socket\socket_data.inc'
+  include 'udp/udp_client.inc'
+  include 'tcp/tcp_client.inc'
+  
+  CLIENT_TYPE         dd    ?
   
   ;server config
-  server_IP           db    '127.0.0.1', 0    ;10.211.55.4
+  server_IP           db    '127.0.0.1', 0 
   server_port         dd    8080
   
   socket_handle       dd    ?
-  soket_data_addr     dd    ?
-  
-  msg_send_err        db    'message send failed', 0
-  msg_get_err         db    'message get failed', 0
-  
-  response_buf        db    1024 dup (?)
-  response_buf_len    dd    $ - response_buf
-
-
-  write_msg_text      db   'Enter message: ', 0
-  write_msg_text_len  dd   $ - write_msg_text 
-  request_buf         db   100  dup  (0)
   
   conTitle      db 'Console', 0
   hStdIn        dd ?
   hStdOut       dd ?
-  chrsRead      dd ?
-  chrsWritten   dd ?
 
 section '.idata' import data readable
 
