@@ -1,7 +1,7 @@
 include 'socket_consts.asm'
 include 'socket_funcs.asm'
 
-
+;init socket library
 proc ws_soket_init
   invoke WSAStartup, [ws_soket_version], ws_wsa
   cmp eax, 0
@@ -14,6 +14,7 @@ proc ws_soket_init
   ret
 endp
 
+;wrapper function for create socket (TCP/UDP)
 proc ws_new_socket, socket_type  ;WS_UDP/WS_TCP
   locals 
     type       dd   ?
@@ -56,6 +57,7 @@ proc ws_new_socket, socket_type  ;WS_UDP/WS_TCP
   ret
 endp
 
+;wrapper function for create connection structure (TCP/UDP)
 proc ws_new_connection_structure, ip, port
   
   mov     [ws_sock_addr.sin_family], AF_INET
@@ -70,6 +72,7 @@ proc ws_new_connection_structure, ip, port
   ret
 endp
 
+;wrapper function for tcp connection
 proc ws_tcp_connect, socket_handle, server_addr
   invoke connect, [socket_handle], [server_addr], sizeof.sockaddr
   cmp eax, SOCKET_ERROR
@@ -80,11 +83,13 @@ proc ws_tcp_connect, socket_handle, server_addr
   ret
 endp
 
+;wrapper function for close socket
 proc ws_close_connection
   invoke WSACleanup
   ret
 endp
 
+;error helper
 proc ws_socket_error, err
   invoke MessageBoxA, 0, [err], ws_error_caption, 0
   ret
