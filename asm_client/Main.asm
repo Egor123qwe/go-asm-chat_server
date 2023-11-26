@@ -121,7 +121,7 @@ section '.data' data readable writeable
   socket_handle       dd    ?
   
   ;========= Console data ==========
-  conTitle      db 'Console', 0
+  conTitle      db 'Client', 0
   hStdIn        dd ?
   hStdOut       dd ?
   ;==================================

@@ -113,3 +113,9 @@ To implement the client, some abstractions were written over the standard WinAPI
 
 **Return**:
 - number of bytes sent in eax, if eax < 0, then an error has occurred 
+
+### Example of work:
+## Server:
+    ![](imgs/server.png)
+## Client:
+    ![](imgs/client.png)
