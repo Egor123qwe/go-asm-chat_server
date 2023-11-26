@@ -19,6 +19,7 @@ To implement the client, some abstractions were written over the standard WinAPI
 ```
 **Arguments**: 
 - none
+
 **Return**: 
 - error code in eax, if eax == 0, then initialization was successful
 
@@ -28,6 +29,7 @@ To implement the client, some abstractions were written over the standard WinAPI
 ```
 **Arguments**: 
 - none
+
 **Return**: 
 - none
 
@@ -37,6 +39,7 @@ To implement the client, some abstractions were written over the standard WinAPI
 ```
 **Arguments**: 
 - socket_type - WS_UDP or WS_TCP
+
 **Return**: 
 - socket descriptor in eax. Successful if eax not zero.
 
@@ -46,6 +49,7 @@ To implement the client, some abstractions were written over the standard WinAPI
 ```
 **Arguments**: 
 - ip - server ip, port - server port
+
 **Return**: 
 - adress of socket data structure (winapi sock_addr)
 
@@ -57,6 +61,7 @@ To implement the client, some abstractions were written over the standard WinAPI
 **Arguments**: 
 - socket_handle - socket descriptor (use ws_new_socket to get this descriptor)
 - server_addr - socket data structure adress (use ws_new_connection_structure to get this structure)
+
 **Return**:
 - error code in eax, successful if eax == 0
 
@@ -68,6 +73,7 @@ To implement the client, some abstractions were written over the standard WinAPI
 - socket - socket descriptor
 - msg - adress to message buffer
 - msg_len - length of this message
+
 **Return**:
 - number of bytes sent in eax, if eax < 0, then an error has occurred
 ### Get message:
@@ -78,6 +84,7 @@ To implement the client, some abstractions were written over the standard WinAPI
 - socket - socket descriptor
 - buf - buffer to save message
 - buf_len - length of this buffer
+
 **Return**:
 - number of bytes sent in eax, if eax < 0, then an error has occurred
 
@@ -91,6 +98,7 @@ To implement the client, some abstractions were written over the standard WinAPI
 - soket_info - socket data structure adress
 - msg - adress to message buffer
 - msg_len - length of this message
+
 **Return**:
 - number of bytes sent in eax, if eax < 0, then an error has occurred
 
@@ -102,5 +110,6 @@ To implement the client, some abstractions were written over the standard WinAPI
 - socket - socket descriptor
 - buf - buffer to save message
 - buf_len - length of this buffer
+
 **Return**:
 - number of bytes sent in eax, if eax < 0, then an error has occurred 
