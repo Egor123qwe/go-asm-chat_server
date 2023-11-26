@@ -21,7 +21,7 @@ Start:
   mov [CLIENT_TYPE], WS_UDP ;WS_UDP/WS_TCP
   ;=======================================
 
-  ;console init
+  ;======== Console init ==========
   invoke SetConsoleTitleA, conTitle
   test eax, eax
   jz Exit
@@ -29,19 +29,23 @@ Start:
   mov [hStdIn], eax
   invoke GetStdHandle, -11
   mov [hStdOut], eax
+  ;================================
   
-  ;Initializing the library
+  ;=== Initializing the library ===
   stdcall ws_soket_init
+  ;================================
   
-  ;Creating a new socket
+  ;====== Creating a new socket ======
   stdcall ws_new_socket, [CLIENT_TYPE]
   mov [socket_handle], eax
+  ;===================================
   
-  ;Creating a structure for a new connection
+  ;======== Creating a structure for a new connection =========
   stdcall ws_new_connection_structure, server_IP, [server_port]
   ;eax - *sockaddr
+  ;============================================================
 
-  ;tcp case
+  ;====== TCP case ========
   cmp [CLIENT_TYPE], WS_TCP
   jnz @F
     ;connect to tcp server
@@ -49,37 +53,43 @@ Start:
     ;tcp chat client example
     stdcall start_tcp_chat, [socket_handle], [hStdOut], [hStdIn]
   @@:
+  ;=======================
   
-  ;udp case
+  ;====== UDP case =======
   cmp [CLIENT_TYPE], WS_UDP
   jnz @F
     ;udp chat client example
     stdcall start_udp_chat, [socket_handle], eax, [hStdOut], [hStdIn]
   @@:
+  ;=======================
 
 Exit:
   stdcall ws_close_connection
   invoke  ExitProcess, 0
 
 section '.data' data readable writeable
-  ;socket functions includes
+  ;== socket functions includes ==
   include 'socket\socket_data.inc'
-  ;examples includes:
+  ;===============================
+  
+  ;===== examples includes =====
   include 'udp/udp_client.inc'
   include 'tcp/tcp_client.inc'
-  
-  CLIENT_TYPE         dd    ?
+  ;=============================
   
   ;=========== server config ==============
   server_IP           db    '127.0.0.1', 0 
   server_port         dd    8080
   ;=========================================
   
+  CLIENT_TYPE         dd    ?
   socket_handle       dd    ?
   
+  ;========= Console data ==========
   conTitle      db 'Console', 0
   hStdIn        dd ?
   hStdOut       dd ?
+  ;==================================
 
 section '.idata' import data readable
 
@@ -87,8 +97,6 @@ section '.idata' import data readable
           wsock32,  'WSOCK32.DLL',\
           user32,   'USER32.DLL'
           
-  import user32,\
-          MessageBoxA, 'MessageBoxA'
-          
   include 'api\kernel32.inc'
   include 'api\wsock32.inc'
+  include 'api\user32.inc'

@@ -7,7 +7,7 @@ proc start_udp_chat, socket_handle, soket_data_addr, hStdOut, hStdIn
     invoke ReadConsoleA, [hStdIn], request_buf_udp, 255, chrsRead_udp, 0
     
     ;Sending a message
-    stdcall ws_socket_send_msg, [socket_handle], [soket_data_addr], request_buf_udp, [chrsRead_udp], WS_UDP  
+    stdcall ws_socket_send_msg_udp, [socket_handle], [soket_data_addr], request_buf_udp, [chrsRead_udp], WS_UDP  
     cmp eax, SOCKET_ERROR
     jnz @F
       stdcall ws_socket_error, msg_send_err_udp
@@ -15,7 +15,7 @@ proc start_udp_chat, socket_handle, soket_data_addr, hStdOut, hStdIn
     @@:
     
     ;Receiving a message
-    stdcall ws_socket_get_msg, [socket_handle], response_buf_udp, [response_buf_len_udp]  
+    stdcall ws_socket_get_msg_udp, [socket_handle], response_buf_udp, [response_buf_len_udp]  
     cmp eax, 0
     jge @F
       stdcall ws_socket_error, msg_get_err_udp
