@@ -22,6 +22,6 @@ proc ws_socket_get_msg_udp, socket, buf, buf_len
 endp
 
 proc ws_socket_get_msg_tcp, socket, buf, buf_len
-  invoke recv, [socket], [buf], [buf_len]
+  invoke recv, [socket], [buf], [buf_len], 2
   ret
 endp

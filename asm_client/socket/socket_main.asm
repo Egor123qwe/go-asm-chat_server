@@ -21,17 +21,17 @@ proc ws_new_socket, socket_type  ;WS_UDP/WS_TCP
     protocol   dd   ?
   endl
 
-  ;udp case
+  ;UDP case
   cmp [socket_type], WS_UDP
   jnz @F
-    mov [type], SOCK_DGRAM
+    mov [type],     SOCK_DGRAM
     mov [protocol], IPPROTO_UDP 
     jmp .data_ready
   @@:
-  ;tcp case
+  ;TCP case
   cmp [socket_type], WS_TCP
   jnz @F
-    mov [type], SOCK_STREAM
+    mov [type],     SOCK_STREAM
     mov [protocol], IPPROTO_TCP
     jmp .data_ready
   @@:
