@@ -22,8 +22,8 @@ Start:
   ;---------------------------------------
   ;Here you must select the port that is used on your server:
   ;---------- port -----------
-  mov [server_port_tcp], 10000
   mov [server_port_udp], 9999
+  mov [server_port_tcp], 10000
   ;---------------------------
   ;===============================================================
 
@@ -39,10 +39,19 @@ Start:
   
   ;=== Initializing the library ===
   stdcall ws_soket_init
+  cmp eax, 0
+  jz @F
+     stdcall ws_close_connection
+     stdcall show_error, socket_init_err
+  @@:
   ;================================
   
   ;====== Creating a new socket ======
   stdcall ws_new_socket, [protocol]
+  cmp eax, 0
+  jnz @F
+    stdcall show_error, socket_create_err 
+  @@: 
   mov [socket_handle], eax
   ;===================================
   
@@ -60,25 +69,36 @@ Start:
 
   ;====== TCP case ========
   cmp [protocol], WS_TCP
-  jnz @F
+  jnz .not_tcp
     ;connect to tcp server
     stdcall ws_tcp_connect, [socket_handle], eax
-    ;tcp chat client example
+    cmp eax, 0
+    jz @F
+       stdcall show_error, tcp_connect_err  
+    @@:
+    ;TCP chat client example
     stdcall start_tcp_chat, [socket_handle], [hStdOut], [hStdIn]
-  @@:
+  .not_tcp:
   ;=======================
   
   ;====== UDP case =======
   cmp [protocol], WS_UDP
-  jnz @F
-    ;udp chat client example
+  jnz .not_udp
+    ;UDP chat client example
     stdcall start_udp_chat, [socket_handle], eax, [hStdOut], [hStdIn]
-  @@:
+  .not_udp:
   ;=======================
 
 Exit:
   stdcall ws_close_connection
   invoke  ExitProcess, 0
+  
+  
+;Error helper
+proc show_error, err
+  invoke MessageBoxA, 0, [err], error_caption, 0
+  ret
+endp  
 
 section '.data' data readable writeable
   ;== socket functions includes ==
@@ -104,6 +124,13 @@ section '.data' data readable writeable
   conTitle      db 'Console', 0
   hStdIn        dd ?
   hStdOut       dd ?
+  ;==================================
+  
+  ;======== Errors messages =========
+  error_caption     db   'socket error', 0
+  socket_init_err   db   'Socket initialize failed', 0
+  socket_create_err db   'Socket creation failed', 0
+  tcp_connect_err   db   'TCP connection failed', 0
   ;==================================
 
 section '.idata' import data readable
