@@ -42,8 +42,8 @@ proc ws_new_socket, socket_type  ;WS_UDP/WS_TCP
   invoke socket, AF_INET, [type], [protocol]
   cmp eax, INVALID_SOCKET
   jz .error
-  mov [ws_socket_handle], eax  
-  
+  push eax
+                                            
   invoke setsockopt, eax, SOL_SOCKET, SO_KEEPALIVE, ws_bOptVal, [ws_bOptLen]
   cmp eax, 0
   jnz .error
@@ -53,21 +53,25 @@ proc ws_new_socket, socket_type  ;WS_UDP/WS_TCP
       stdcall ws_socket_error, ws_socket_init_err    
   .return:
   ;return socket discriptor in eax
-  mov eax, [ws_socket_handle]
+  pop eax
   ret
 endp
 
 ;wrapper function for create connection structure (TCP/UDP)
 proc ws_new_connection_structure, ip, port
+
+  invoke GetProcessHeap
+  invoke HeapAlloc, eax, 0, sizeof.sockaddr_in
+  mov esi, eax
   
-  mov     [ws_sock_addr.sin_family], AF_INET
+  mov     [esi + sockaddr_in.sin_family], AF_INET
   invoke  htons, [port]
-  mov     [ws_sock_addr.sin_port], ax 
+  mov     [esi + sockaddr_in.sin_port], ax 
   invoke  inet_addr, [ip]
-  mov     [ws_sock_addr.sin_addr], eax
+  mov     [esi + sockaddr_in.sin_addr], eax
   
   ;return sock_addr structure in eax
-  mov eax, ws_sock_addr
+  mov eax, esi
 
   ret
 endp
