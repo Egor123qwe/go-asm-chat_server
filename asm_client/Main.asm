@@ -14,12 +14,18 @@ include 'tcp/tcp_client.asm'
 section '.text' code readable executable
 
 Start:
-  ;TODO: TCP client
-  ;TODO: get ip, port, mode from console
-
+  ;################## Server config block ######################
+  ;Here you must select the protocol that is used on your server:
   ;========= protocol ====================
-  mov [CLIENT_TYPE], WS_UDP ;WS_UDP/WS_TCP
+  mov [CLIENT_TYPE], WS_TCP ;WS_UDP/WS_TCP
   ;=======================================
+  
+  ;Here you must select the port that is used on your server:
+  ;========= port ============
+  mov [server_port_tcp], 10000
+  mov [server_port_udp], 9999
+  ;==========================
+  ;##############################################################
 
   ;======== Console init ==========
   invoke SetConsoleTitleA, conTitle
@@ -41,8 +47,15 @@ Start:
   ;===================================
   
   ;======== Creating a structure for a new connection =========
-  stdcall ws_new_connection_structure, server_IP, [server_port]
-  ;eax - *sockaddr
+  ;----- Selecting a port ------
+  mov eax, [server_port_tcp]
+  cmp [CLIENT_TYPE], WS_UDP 
+  jnz @F
+     mov eax, [server_port_udp]
+  @@:
+  ;-----------------------------
+  stdcall ws_new_connection_structure, server_IP, eax
+  ;eax - *sockaddr !!!
   ;============================================================
 
   ;====== TCP case ========
@@ -78,8 +91,9 @@ section '.data' data readable writeable
   ;=============================
   
   ;=========== server config ==============
-  server_IP           db    '127.0.0.1', 0 
-  server_port         dd    8080
+  server_IP               db    '127.0.0.1', 0 
+  server_port_tcp         dd    10000
+  server_port_udp         dd    9999
   ;=========================================
   
   CLIENT_TYPE         dd    ?

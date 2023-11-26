@@ -27,20 +27,21 @@ func New() *server {
 func (s *server) Start() error {
 	gr, _ := errgroup.WithContext(s.ctx)
 
+	udpServer, err := udp.New(s.config.IP, s.config.UDPPort)
+	if err != nil {
+		return err
+	}
+	tcpServer, err := tcp.New(s.config.IP, s.config.TCPPort)
+	if err != nil {
+		return err
+	}
+
 	if strings.ToLower(s.config.Protocol) == "udp" {
 		gr.Go(func() error {
-			udpServer, err := udp.New(s.config.IP, s.config.UDPPort)
-			if err != nil {
-				return err
-			}
 			return udpServer.Start()
 		})
 	} else if strings.ToLower(s.config.Protocol) == "tcp" {
 		gr.Go(func() error {
-			tcpServer, err := tcp.New(s.config.IP, s.config.TCPPort)
-			if err != nil {
-				return err
-			}
 			return tcpServer.Start()
 		})
 	} else {
