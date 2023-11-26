@@ -13,19 +13,19 @@ include 'tcp/tcp_client.asm'
 
 section '.text' code readable executable
 
-Start:
-  ;################## Server config block ######################
+Start:      
+  ;You can delete this block and use default values...
+  ;==============================================================             
   ;Here you must select the protocol that is used on your server:
-  ;========= protocol ====================
-  mov [CLIENT_TYPE], WS_TCP ;WS_UDP/WS_TCP
-  ;=======================================
-  
+  ;----------- protocol ------------------
+  mov [protocol], WS_TCP ;WS_UDP/WS_TCP
+  ;---------------------------------------
   ;Here you must select the port that is used on your server:
-  ;========= port ============
+  ;---------- port -----------
   mov [server_port_tcp], 10000
   mov [server_port_udp], 9999
-  ;==========================
-  ;##############################################################
+  ;---------------------------
+  ;===============================================================
 
   ;======== Console init ==========
   invoke SetConsoleTitleA, conTitle
@@ -42,14 +42,14 @@ Start:
   ;================================
   
   ;====== Creating a new socket ======
-  stdcall ws_new_socket, [CLIENT_TYPE]
+  stdcall ws_new_socket, [protocol]
   mov [socket_handle], eax
   ;===================================
   
   ;======== Creating a structure for a new connection =========
   ;----- Selecting a port ------
   mov eax, [server_port_tcp]
-  cmp [CLIENT_TYPE], WS_UDP 
+  cmp [protocol], WS_UDP 
   jnz @F
      mov eax, [server_port_udp]
   @@:
@@ -59,7 +59,7 @@ Start:
   ;============================================================
 
   ;====== TCP case ========
-  cmp [CLIENT_TYPE], WS_TCP
+  cmp [protocol], WS_TCP
   jnz @F
     ;connect to tcp server
     stdcall ws_tcp_connect, [socket_handle], eax
@@ -69,7 +69,7 @@ Start:
   ;=======================
   
   ;====== UDP case =======
-  cmp [CLIENT_TYPE], WS_UDP
+  cmp [protocol], WS_UDP
   jnz @F
     ;udp chat client example
     stdcall start_udp_chat, [socket_handle], eax, [hStdOut], [hStdIn]
@@ -91,12 +91,13 @@ section '.data' data readable writeable
   ;=============================
   
   ;=========== server config ==============
+  ;Default values for server config:
+  protocol                dd    ?
   server_IP               db    '127.0.0.1', 0 
   server_port_tcp         dd    10000
   server_port_udp         dd    9999
   ;=========================================
   
-  CLIENT_TYPE         dd    ?
   socket_handle       dd    ?
   
   ;========= Console data ==========
