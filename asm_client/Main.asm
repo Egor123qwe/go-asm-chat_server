@@ -91,7 +91,6 @@ section '.data' data readable writeable
   ;=============================
   
   ;=========== server config ==============
-  config_file_name        db    'config.yaml',0
   ;Default values for server config:
   protocol                dd    ?
   server_IP               db    '127.0.0.1', 0 

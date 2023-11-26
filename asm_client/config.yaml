@@ -1,4 +1,0 @@
-udp_server_port: 9999
-tcp_server_port: 10000
-ip: "127.0.0.1"
-protocol: "tcp"
