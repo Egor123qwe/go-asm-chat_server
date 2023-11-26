@@ -4,21 +4,15 @@ include 'socket_funcs.asm'
 ;init socket library
 proc ws_soket_init
   invoke WSAStartup, [ws_soket_version], ws_wsa
-  cmp eax, 0
-  jne .error
-  jmp .return
-  .error:
-     stdcall ws_socket_error, ws_socket_init_err
-     stdcall ws_close_connection
-  .return:
   ret
 endp
 
 ;wrapper function for create socket (TCP/UDP)
 proc ws_new_socket, socket_type  ;WS_UDP/WS_TCP
   locals 
-    type       dd   ?
-    protocol   dd   ?
+    type            dd    ?
+    protocol        dd    ?
+    socket_handle   dd    ?
   endl
 
   ;UDP case
@@ -42,7 +36,7 @@ proc ws_new_socket, socket_type  ;WS_UDP/WS_TCP
   invoke socket, AF_INET, [type], [protocol]
   cmp eax, INVALID_SOCKET
   jz .error
-  push eax
+  mov [socket_handle], eax
                                             
   invoke setsockopt, eax, SOL_SOCKET, SO_KEEPALIVE, ws_bOptVal, [ws_bOptLen]
   cmp eax, 0
@@ -50,10 +44,11 @@ proc ws_new_socket, socket_type  ;WS_UDP/WS_TCP
       
   jmp .return
   .error:
-      stdcall ws_socket_error, ws_socket_init_err    
+      ;return error discriptor
+      mov [socket_handle], 0 
   .return:
   ;return socket discriptor in eax
-  pop eax
+  mov eax, [socket_handle]
   ret
 endp
 
@@ -79,11 +74,6 @@ endp
 ;wrapper function for tcp connection
 proc ws_tcp_connect, socket_handle, server_addr
   invoke connect, [socket_handle], [server_addr], sizeof.sockaddr
-  cmp eax, SOCKET_ERROR
-  jnz @F
-     stdcall ws_socket_error, ws_tcp_connect_err  
-  @@:
-  
   ret
 endp
 
@@ -91,10 +81,4 @@ endp
 proc ws_close_connection
   invoke WSACleanup
   ret
-endp
-
-;error helper
-proc ws_socket_error, err
-  invoke MessageBoxA, 0, [err], ws_error_caption, 0
-  ret
-endp                     
+endp                   

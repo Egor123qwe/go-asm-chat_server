@@ -10,7 +10,7 @@ proc start_udp_chat, socket_handle, soket_data_addr, hStdOut, hStdIn
     stdcall ws_socket_send_msg_udp, [socket_handle], [soket_data_addr], request_buf_udp, [chrsRead_udp]  
     cmp eax, SOCKET_ERROR
     jnz @F
-      stdcall ws_socket_error, msg_send_err_udp
+      stdcall show_error, msg_send_err_udp
       jmp .Exit
     @@:
     
@@ -18,7 +18,7 @@ proc start_udp_chat, socket_handle, soket_data_addr, hStdOut, hStdIn
     stdcall ws_socket_get_msg_udp, [socket_handle], response_buf_udp, [response_buf_len_udp]  
     cmp eax, 0
     jge @F
-      stdcall ws_socket_error, msg_get_err_udp
+      stdcall show_error, msg_get_err_udp
       jmp .Exit
     @@:
     

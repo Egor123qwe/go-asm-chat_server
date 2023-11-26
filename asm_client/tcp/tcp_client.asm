@@ -9,7 +9,7 @@ proc start_tcp_chat, socket_handle, hStdOut, hStdIn
     stdcall ws_socket_send_msg_tcp, [socket_handle], request_buf_tcp, [chrsRead_tcp]  
     cmp eax, SOCKET_ERROR
     jnz @F
-      stdcall ws_socket_error, msg_send_err_tcp
+      stdcall show_error, msg_send_err_tcp
       jmp .Exit
     @@:
     
@@ -17,7 +17,7 @@ proc start_tcp_chat, socket_handle, hStdOut, hStdIn
     stdcall ws_socket_get_msg_tcp, [socket_handle], response_buf_tcp, [response_buf_len_tcp]  
     cmp eax, 0
     jge @F
-      stdcall ws_socket_error, msg_get_err_tcp
+      stdcall show_error, msg_get_err_tcp
       jmp .Exit
     @@:
     
