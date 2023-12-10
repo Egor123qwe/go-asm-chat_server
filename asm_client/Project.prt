@@ -4,11 +4,14 @@ include "Main.asm"
 
 if 2 * 2 = 5
 [options]
-  countAsm=2
-  countInc=1
+  countAsm=4
+  countInc=2
 [asm]
   asm1="Main.asm"
-  asm2="player.asm"
+  asm2="client.asm"
+  asm3="player.asm"
+  asm4="player_services.asm"
 [inc]
   inc1="client.inc"
+  inc2="player.inc"
 end if

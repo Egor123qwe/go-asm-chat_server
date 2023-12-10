@@ -1,20 +1,3 @@
-proc client.Subscribe_PlayerData, posAddr, turnAddr, HandItemAddr, PlayerState
-
-  ;Init addreses
-  mov eax, [posAddr]
-  mov [cl_PosAddr], eax
-  mov eax, [turnAddr]
-  mov [cl_TurnAddr], eax
-  mov eax, [HandItemAddr]
-  mov [cl_HandItemAddr], eax
-  mov eax, [PlayerState]
-  mov [cl_StateAddr], eax
-  
-  stdcall _client.CopyPlayerData
-  ret
-endp
-
-
 proc _client.CopyPlayerData uses esi
   ;Init last data
   ;=== position ======
@@ -96,23 +79,3 @@ proc _client.CmpPlayerData uses esi edi
   .Return:
   ret
 endp
-
-
-proc client.Serve_PlayerData, udp_socket_handle, udp_soket_data_addr, playerId, groopId, sleepTime
-  .ServeCircle:
-      stdcall _client.CmpPlayerData
-      cmp eax, 1
-      jne .SkipSend
-        ;Create a message
-        
-        ;Sending a message
-        stdcall ws_socket_send_msg_udp, [udp_socket_handle], [udp_soket_data_addr], tmp_mess, 5 
-    
-      .SkipSend:
-      invoke Sleep, [sleepTime]
-  jmp .ServeCircle  
-  ret
-endp
-
-
-proc _client.StartServe_PlayerData

@@ -88,8 +88,12 @@ Start:
   cmp [protocol], WS_UDP
   jnz .not_udp
     stdcall client.Subscribe_PlayerData, PlayerPos, PlayerTurn, HandItem, PlayerState
-    mov [PlayerTurn + 4], 1.0
-    stdcall client.Serve_PlayerData, [socket_handle], [conn_structure], 0, 0, 100
+    stdcall client.Serve_PlayerData, [socket_handle], [conn_structure], [PlayerId], [PlayerGroop], 300
+    invoke Sleep, 5000
+    mov [PlayerTurn + 4], 1.5
+    invoke Sleep, 5000
+    mov [PlayerPos + 4], 1.5
+    invoke Sleep, 5000
   .not_udp:
   ;=======================
 
@@ -132,6 +136,9 @@ section '.data' data readable writeable
   PlayerTurn              dd    0.0, 0.0, 0.0
   HandItem                dd    3
   PlayerState             dd    1
+  
+  PlayerId                dd    0
+  PlayerGroop             dd    0
   ;=======================================
   
   ;========= Console data ==========
