@@ -4,18 +4,11 @@ include "Main.asm"
 
 if 2 * 2 = 5
 [options]
-  countAsm=7
-  countInc=3
+  countAsm=2
+  countInc=1
 [asm]
   asm1="Main.asm"
-  asm2="socket_consts.asm"
-  asm3="socket_funcs.asm"
-  asm4="socket_main.asm"
-  asm5="tcp_client.asm"
-  asm6="udp_client.asm"
-  asm7="config_reader.asm"
+  asm2="player.asm"
 [inc]
-  inc1="socket_data.inc"
-  inc2="tcp_client.inc"
-  inc3="udp_client.inc"
+  inc1="client.inc"
 end if

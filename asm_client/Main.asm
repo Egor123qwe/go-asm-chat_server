@@ -11,6 +11,8 @@ include 'udp/udp_client.asm'
 include 'tcp/tcp_client.asm'
 ;===========================
 
+include 'client/client.asm'
+
 section '.text' code readable executable
 
 Start:      
@@ -18,7 +20,7 @@ Start:
   ;==============================================================             
   ;Here you must select the protocol that is used on your server:
   ;----------- protocol ------------------
-  mov [protocol], WS_TCP ;WS_UDP/WS_TCP
+  mov [protocol], WS_UDP ;WS_UDP/WS_TCP
   ;---------------------------------------
   ;Here you must select the port that is used on your server:
   ;---------- port -----------
@@ -65,6 +67,7 @@ Start:
   ;-----------------------------
   stdcall ws_new_connection_structure, server_IP, eax
   ;eax - *sockaddr !!!
+  mov [conn_structure], eax
   ;============================================================
 
   ;====== TCP case ========
@@ -84,8 +87,9 @@ Start:
   ;====== UDP case =======
   cmp [protocol], WS_UDP
   jnz .not_udp
-    ;UDP chat client example
-    stdcall start_udp_chat, [socket_handle], eax, [hStdOut], [hStdIn]
+    stdcall client.Subscribe_PlayerData, PlayerPos, PlayerTurn, HandItem, PlayerState
+    mov [PlayerTurn + 4], 1.0
+    stdcall client.Serve_PlayerData, [socket_handle], [conn_structure], 0, 0, 100
   .not_udp:
   ;=======================
 
@@ -110,6 +114,8 @@ section '.data' data readable writeable
   include 'tcp/tcp_client.inc'
   ;=============================
   
+  include 'client/client.inc'
+  
   ;=========== server config ==============
   ;Default values for server config:
   protocol                dd    ?
@@ -119,6 +125,14 @@ section '.data' data readable writeable
   ;=========================================
   
   socket_handle       dd    ?
+  conn_structure      dd    ?
+  
+  ;=========== Game data =================
+  PlayerPos               dd    0.0, 0.0, 0.0
+  PlayerTurn              dd    0.0, 0.0, 0.0
+  HandItem                dd    3
+  PlayerState             dd    1
+  ;=======================================
   
   ;========= Console data ==========
   conTitle      db 'Client', 0
