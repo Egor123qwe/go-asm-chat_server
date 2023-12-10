@@ -18,7 +18,7 @@ Start:
   ;==============================================================             
   ;Here you must select the protocol that is used on your server:
   ;----------- protocol ------------------
-  mov [protocol], WS_TCP ;WS_UDP/WS_TCP
+  mov [protocol], WS_UDP ;WS_UDP/WS_TCP
   ;---------------------------------------
   ;Here you must select the port that is used on your server:
   ;---------- port -----------
